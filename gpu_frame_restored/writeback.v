@@ -99,6 +99,8 @@ always @(*) begin
 				O_RegWEn = 1'b1;
 				O_WriteBackRegIdx = I_DestRegIdx;
 				O_WriteBackData = I_DestValue;
+				O_CCWEn = 1'b1;
+				O_CCValue = I_CCValue;
 			end 
 		end
 		
@@ -107,6 +109,8 @@ always @(*) begin
 				O_RegWEn = 1'b1;
 				O_WriteBackRegIdx = I_DestRegIdx;
 				O_WriteBackData = I_DestValue;
+				O_CCWEn = 1'b1;
+				O_CCValue = I_CCValue;
 			end 
 		end
 	endcase

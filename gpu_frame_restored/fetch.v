@@ -36,6 +36,7 @@ output reg O_LOCK;
 output reg [`PC_WIDTH-1:0] O_PC;
 output reg [`IR_WIDTH-1:0] O_IR;
 output reg  O_FE_Valid;
+reg [`PC_WIDTH-1:0] PC_Inc;
  
 /////////////////////////////////////////
 // WIRE/REGISTER DECLARATION GOES HERE
@@ -46,27 +47,50 @@ reg[`INST_WIDTH-1:0] InstMem[0:`INST_MEM_SIZE-1];
 // INITIAL/ASSIGN STATEMENT GOES HERE
 /////////////////////////////////////////
 initial begin
-	$readmemh("test2.hex", InstMem);
+	$readmemh("testCC1.hex", InstMem);
 
 	O_LOCK = 1'b0;
 	O_PC = 16'h0;
 	O_IR = 32'hFF000000;
 end
 
-/////////////////////////////////////////
-// ALWAYS STATEMENT GOES HERE
-/////////////////////////////////////////
+
 wire [`INST_MEM_ADDR_SIZE-3:0] PC_line;
 wire FE_valid_out;
-wire [`INST_MEM_ADDR_SIZE-3:0]PC_4_Value;
-wire latch_keep;
+//wire [`INST_MEM_ADDR_SIZE-3:0]PC_4_Value;
+//wire latch_keep;
 wire [`IR_WIDTH-1:0] IR_out;
 
 assign PC_line = O_PC[`INST_MEM_ADDR_SIZE-1:2];
 assign IR_out = InstMem[PC_line];
-assign PC_4_Value = O_PC + 4;
-assign latch_keep  = I_DepStallSignal; 
-  
+//assign PC_4_Value = O_PC + 4;
+//assign latch_keep  = ((I_DepStallSignal == 1 && I_BranchStallSignal == 0) || (I_DepStallSignal == 1 && I_BranchStallSignal ==1)) ? 1 : 0;
+reg latch_keep;
+reg fe_valid;
+reg branch;
+
+
+
+//always*
+always @(*) begin
+	PC_Inc = O_PC + 4;
+	if (I_BranchAddrSelect == 1)
+		PC_Inc = I_BranchPC;
+	if (I_BranchStallSignal == 0 && I_DepStallSignal == 0) begin
+		fe_valid = 1;
+		latch_keep = 0;
+	end else if (I_BranchStallSignal == 0 && I_DepStallSignal == 1) begin
+		fe_valid = 1;
+		latch_keep = 1;
+	end else if (I_BranchStallSignal == 1 && I_DepStallSignal == 0) begin
+		fe_valid = 0;
+		latch_keep = 0;
+	end else if (I_BranchStallSignal == 1 && I_DepStallSignal == 1) begin
+		fe_valid = 1;
+		latch_keep = 1;
+	end 
+end
+//  
 /////////////////////////////////////////
 // ## Note ##
 // 1. Update output values (O_PC, O_IR) and PC.
@@ -78,13 +102,24 @@ always @(negedge I_CLOCK) begin
 	if (I_LOCK == 0) begin
 		O_PC <= 0;
 		O_IR <= IR_out;
+		if (I_BranchStallSignal == 1)
 		O_FE_Valid <= 1; 
 	end else begin // if (I_LOCK == 1)
 		/////////////////////////////////////////////
 		// TODO: Complete here
 		/////////////////////////////////////////////
-		O_PC <= (latch_keep) ? O_PC: PC_4_Value;
-		O_IR <= (latch_keep) ? O_IR: IR_out; 
+		if (I_BranchAddrSelect == 1) begin
+			O_PC <= I_BranchPC;
+			O_IR <= IR_out;
+		end else begin
+		   O_PC <= (latch_keep) ? O_PC: PC_Inc;
+		   O_IR <= (latch_keep) ? O_IR: IR_out; 
+		end
+//		if (I_BranchStallSignal == 1 && I_DepStallSignal == 0)
+//			O_FE_Valid <= 0;
+//		else
+//			O_FE_Valid <= 1;
+		O_FE_Valid <= fe_valid;
 	end // if (I_LOCK == 0)
 end // always @(negedge I_CLOCK)
 
