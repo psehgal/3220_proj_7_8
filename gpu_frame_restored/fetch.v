@@ -47,7 +47,7 @@ reg[`INST_WIDTH-1:0] InstMem[0:`INST_MEM_SIZE-1];
 // INITIAL/ASSIGN STATEMENT GOES HERE
 /////////////////////////////////////////
 initial begin
-	$readmemh("testCC1.hex", InstMem);
+	$readmemh("test_branch.hex", InstMem);
 
 	O_LOCK = 1'b0;
 	O_PC = 16'h0;
@@ -68,8 +68,6 @@ assign IR_out = InstMem[PC_line];
 reg latch_keep;
 reg fe_valid;
 reg branch;
-
-
 
 //always*
 always @(*) begin

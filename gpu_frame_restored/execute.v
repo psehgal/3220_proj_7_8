@@ -98,6 +98,7 @@ output [`PC_WIDTH-1:0] O_BranchPC_Signal;
 output O_BranchAddrSelect_Signal;
 reg [`PC_WIDTH-1:0] My_O_BranchPC_Signal;
 reg My_O_BranchAddrSelect_Signal;
+reg [0:0] Branch_Was_Taken = 0;
 
 // Signals to the DE stage for dependency checking    
 output  O_RegWEn_Signal;
@@ -196,10 +197,12 @@ always @(*) begin
 
 		`OP_BRP: begin
 			if (I_CCValue == 3'b001 && I_DE_Valid == 1) begin
-				 My_O_BranchPC_Signal = I_PC + Imm32;
+				 My_O_BranchPC_Signal = I_PC + (Imm32 * 4); // Change by Felipe -- Multiplied by 4
 				 My_O_BranchAddrSelect_Signal = 1;
+				 Branch_Was_Taken = 1; // Change by Felipe
 			end else begin
 				 My_O_BranchAddrSelect_Signal = 0;
+				 Branch_Was_Taken = 0; // Change by Felipe
 			end
 		end
 
@@ -297,7 +300,14 @@ always @(negedge I_CLOCK) begin
 	if (I_LOCK == 1'b1) begin
 		O_PC <= I_PC;
 		O_IR <= I_IR;
-		O_EX_Valid <= I_DE_Valid;
+		
+		// Change by Felipe -- "Cheating": checking if last instruction was a branch instruction &
+		// if it was taken, then clearly the instruction right after the branch instruction is invalid
+		if (O_IR[31:27] == 5'b11011 && Branch_Was_Taken == 1) begin 
+			O_EX_Valid <= 0;
+		end else begin
+			O_EX_Valid <= I_DE_Valid;
+		end
 
 		O_DestRegIdx <= ALU_O_DestRegIdx;
 		O_DestValue <= ALU_O_DestValue;
@@ -311,7 +321,7 @@ always @(negedge I_CLOCK) begin
 		 
 	end
 	else begin // I_LOCK = 1'b0  
-		O_EX_Valid <=1'b0;
+		O_EX_Valid <= 1'b0;
 		O_RegWEn <= 1'b0;
 		O_VRegWEn <= 1'b0; 
 		O_CCWEn <= 1'b0; 
