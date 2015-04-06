@@ -111,8 +111,7 @@ output  O_CCWEn_Signal;
 wire [`REG_WIDTH-1:0] Imm32;
 //assign O_RegWEn_Signal = (I_DE_Valid == 1) ? 1 : 0;
 
-   
-
+  
 /////////////////////////////////////////
 // ALWAYS STATEMENT GOES HERE
 /////////////////////////////////////////
@@ -160,9 +159,17 @@ always @(*) begin
 		end
 
 		`OP_MOVI_D: begin 
+			ALU_O_DestValue = I_Imm;
+			ALU_O_DestRegIdx = I_DestRegIdx; 
+			CCWEn = 1;
+			RegWEn = 1;
 		end
 
 		`OP_MOVI_F: begin 
+			ALU_O_DestValue = I_Imm;
+			ALU_O_DestRegIdx = I_DestRegIdx; 
+			CCWEn = 1;
+			RegWEn = 1;
 		end
 
 		`OP_VMOV: begin 
@@ -174,7 +181,8 @@ always @(*) begin
 		`OP_CMP: begin
 		end
 
-		`OP_CMPI: begin		  
+		`OP_CMPI: begin
+			ALU_O_DestValue = I_Src1Value - I_Imm;
 		end
 		 
 		`OP_VCOMPMOV: begin  
@@ -208,55 +216,67 @@ always @(*) begin
 
 		`OP_BRN: begin
 			if (I_CCValue == 3'b100 && I_DE_Valid == 1) begin
-				My_O_BranchPC_Signal = I_PC + Imm32;
+				My_O_BranchPC_Signal = I_PC + (Imm32 * 4);
 				My_O_BranchAddrSelect_Signal = 1;
+				Branch_Was_Taken = 1;
 			end else begin
-				 My_O_BranchAddrSelect_Signal = 0;
+				My_O_BranchAddrSelect_Signal = 0;
+				Branch_Was_Taken = 0;
 			end
 		end 
 
 		`OP_BRZ: begin
 			if (I_CCValue == 3'b010 && I_DE_Valid == 1) begin
-				My_O_BranchPC_Signal = I_PC + Imm32;
+				My_O_BranchPC_Signal = I_PC + (Imm32 * 4);
 				My_O_BranchAddrSelect_Signal = 1;
+				Branch_Was_Taken = 1;
 			end else begin
-				 My_O_BranchAddrSelect_Signal = 0;	
-			end 
+				My_O_BranchAddrSelect_Signal = 0;
+				Branch_Was_Taken = 0;
+			end
 		end
 
 		`OP_BRNP: begin
 			if (((I_CCValue == 3'b100) || (I_CCValue == 3'b001)) && I_DE_Valid == 1) begin
-				My_O_BranchPC_Signal = I_PC + Imm32;
+				My_O_BranchPC_Signal = I_PC + (Imm32 * 4);
 				My_O_BranchAddrSelect_Signal = 1;
+				Branch_Was_Taken = 1;
 			end else begin
-				 My_O_BranchAddrSelect_Signal = 0;
+				My_O_BranchAddrSelect_Signal = 0;
+				Branch_Was_Taken = 0;
 			end
 		end
 
 		`OP_BRZP: begin
 			if (((I_CCValue == 3'b010) || (I_CCValue == 3'b001)) && I_DE_Valid == 1) begin
-				My_O_BranchPC_Signal = I_PC + Imm32;
+				My_O_BranchPC_Signal = I_PC + (Imm32 * 4);
 				My_O_BranchAddrSelect_Signal = 1;
+				Branch_Was_Taken = 1;
 			end else begin
-				 My_O_BranchAddrSelect_Signal = 0;
+				My_O_BranchAddrSelect_Signal = 0;
+				Branch_Was_Taken = 0;
 			end
 		end 
 
 		`OP_BRNZ: begin
 			if (((I_CCValue == 3'b100) || (I_CCValue == 3'b010)) && I_DE_Valid == 1) begin
-				My_O_BranchPC_Signal = I_PC + Imm32;
+				My_O_BranchPC_Signal = I_PC + (Imm32 * 4);
 				My_O_BranchAddrSelect_Signal = 1;
+				Branch_Was_Taken = 1;
 			end else begin
-				 My_O_BranchAddrSelect_Signal = 0;
-			end 
+				My_O_BranchAddrSelect_Signal = 0;
+				Branch_Was_Taken = 0;
+			end
 		end 
 
 		`OP_BRNZP: begin
 			if (((I_CCValue == 3'b100) || (I_CCValue == 3'b010) || (I_CCValue == 3'b001)) && I_DE_Valid == 1) begin
-				My_O_BranchPC_Signal = I_PC + Imm32;
+				My_O_BranchPC_Signal = I_PC + (Imm32 * 4);
 				My_O_BranchAddrSelect_Signal = 1;
+				Branch_Was_Taken = 1;
 			end else begin
-				 My_O_BranchAddrSelect_Signal = 0;
+				My_O_BranchAddrSelect_Signal = 0;
+				Branch_Was_Taken = 0;
 			end
 		end 
 
