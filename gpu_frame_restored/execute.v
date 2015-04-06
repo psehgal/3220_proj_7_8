@@ -99,6 +99,8 @@ output O_BranchAddrSelect_Signal;
 reg [`PC_WIDTH-1:0] My_O_BranchPC_Signal;
 reg My_O_BranchAddrSelect_Signal;
 reg [0:0] Branch_Was_Taken = 0;
+reg[`REG_WIDTH-1:0] MARValue;
+reg[`REG_WIDTH-1:0] MDRValue;
 
 // Signals to the DE stage for dependency checking    
 output  O_RegWEn_Signal;
@@ -201,16 +203,18 @@ always @(*) begin
 		end
 
 		`OP_STW: begin
+			MARValue = I_Src2Value + I_Imm;
+			MDRValue = I_Src1Value;
 		end
 
 		`OP_BRP: begin
 			if (I_CCValue == 3'b001 && I_DE_Valid == 1) begin
-				 My_O_BranchPC_Signal = I_PC + (Imm32 * 4); // Change by Felipe -- Multiplied by 4
+				 My_O_BranchPC_Signal = I_PC + (Imm32 * 4); 
 				 My_O_BranchAddrSelect_Signal = 1;
-				 Branch_Was_Taken = 1; // Change by Felipe
+				 Branch_Was_Taken = 1; 
 			end else begin
 				 My_O_BranchAddrSelect_Signal = 0;
-				 Branch_Was_Taken = 0; // Change by Felipe
+				 Branch_Was_Taken = 0; 
 			end
 		end
 
@@ -288,6 +292,11 @@ always @(*) begin
 
 		`OP_JSRR: begin
 		end
+		
+		`OP_HALT: begin
+			My_O_BranchPC_Signal = I_PC - 4; // Re-execute the halt instruction ad infinitum
+			My_O_BranchAddrSelect_Signal = 1;
+		end
 		  
 		default: begin
 		end 
@@ -302,8 +311,8 @@ always @(*) begin
 end // always @ begin
 
 assign O_BranchPC_Signal = My_O_BranchPC_Signal;
-//assign O_BranchAddrSelect_Signal = My_O_BranchAddrSelect_Signal;
-assign O_BranchAddrSelect_Signal = (I_IR[31:27] == 5'b11011) ? My_O_BranchAddrSelect_Signal : 0;
+assign O_BranchAddrSelect_Signal = (I_IR[31:27] == 5'b11011 || I_Opcode == `OP_HALT) 
+											? My_O_BranchAddrSelect_Signal : 0;
 	
 assign O_RegWEn_Signal = (I_DE_Valid) ? RegWEn : 0;
 assign O_CCWEn_Signal = (I_DE_Valid) ? CCWEn : 0;
@@ -333,6 +342,8 @@ always @(negedge I_CLOCK) begin
 		O_DestValue <= ALU_O_DestValue;
 		O_RegWEn <= O_RegWEn_Signal; 
 		O_CCWEn <= O_CCWEn_Signal;
+		O_MARValue <= MARValue;
+		O_MDRValue <= MDRValue;
 		if (O_CCWEn_Signal == 1) begin
 			O_CCValue <= CCValue;
 		end else begin

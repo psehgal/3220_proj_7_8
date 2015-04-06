@@ -120,10 +120,10 @@
 # Loading altera_mf_ver.arm_m_cntr
 # Loading altera_mf_ver.arm_n_cntr
 # Loading altera_mf_ver.arm_scale_cntr
-# ** Warning: (vsim-3015) D:/CPSC/3220/project7/gpu_frame_restored/decode.v(448): [PCDPC] - Port size (32 or 32) does not match connection size (16) for port 'Out'. The port definition is at: D:/CPSC/3220/project7/gpu_frame_restored/sign_extension.v(3).
+# ** Warning: (vsim-3015) D:/CPSC/3220/project7/gpu_frame_restored/decode.v(453): [PCDPC] - Port size (32 or 32) does not match connection size (16) for port 'Out'. The port definition is at: D:/CPSC/3220/project7/gpu_frame_restored/sign_extension.v(3).
 # 
 #         Region: /lg_highlevel/Decode0/SE0
-# ** Warning: (vsim-3015) D:/CPSC/3220/project7/gpu_frame_restored/execute.v(351): [PCDPC] - Port size (32 or 32) does not match connection size (16) for port 'Out'. The port definition is at: D:/CPSC/3220/project7/gpu_frame_restored/sign_extension.v(3).
+# ** Warning: (vsim-3015) D:/CPSC/3220/project7/gpu_frame_restored/execute.v(361): [PCDPC] - Port size (32 or 32) does not match connection size (16) for port 'Out'. The port definition is at: D:/CPSC/3220/project7/gpu_frame_restored/sign_extension.v(3).
 # 
 #         Region: /lg_highlevel/Execute0/SE0
 # ** Warning: (vsim-3017) D:/CPSC/3220/project7/gpu_frame_restored/lg_highlevel.v(453): [TFMPC] - Too few port connections. Expected 16, found 12.
@@ -148,6 +148,15 @@
 #     while executing
 # "do D:/CPSC/3220/project7/gpu_frame_restored/simulation/modelsim/my_custom_view.do"
 do D:/CPSC/3220/project7/gpu_frame_restored/simulation/modelsim/wave_felipe.do
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: fmontei1  Hostname: FMONTEI1-PC  ProcessID: 10848
+# 
+#           Attempting to use alternate WLF file "./wlftcx160n".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlftcx160n
+# 
 force -freeze sim:/lg_highlevel/Fetch0/I_CLOCK 1 0, 0 {50 ps} -r 100
 force -freeze sim:/lg_highlevel/Fetch0/I_LOCK 0 0
 run
@@ -155,37 +164,7 @@ run
 # Time: 0  Instance: lg_highlevel.pll0.altpll_component.stratixii_pll.pll1
 force -freeze sim:/lg_highlevel/Fetch0/I_LOCK 1 0
 run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
-run
+run 11ns
 run
 run
 run

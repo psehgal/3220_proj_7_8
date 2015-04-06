@@ -47,7 +47,7 @@ reg[`INST_WIDTH-1:0] InstMem[0:`INST_MEM_SIZE-1];
 // INITIAL/ASSIGN STATEMENT GOES HERE
 /////////////////////////////////////////
 initial begin
-	$readmemh("test_branch.hex", InstMem);
+	$readmemh("sum.hex", InstMem);
 
 	O_LOCK = 1'b0;
 	O_PC = 16'h0;
@@ -89,7 +89,6 @@ always @(*) begin
 		fe_valid = 1;
 		latch_keep = 1;
 	end 
-	
 end
 //  
 /////////////////////////////////////////
@@ -142,10 +141,6 @@ always @(negedge I_CLOCK) begin
 			end
 		end
 		
-//		if (I_BranchStallSignal == 1 && I_DepStallSignal == 0)
-//			O_FE_Valid <= 0;
-//		else
-//			O_FE_Valid <= 1;
 		O_FE_Valid <= fe_valid;
 	end // if (I_LOCK == 0)
 end // always @(negedge I_CLOCK)
